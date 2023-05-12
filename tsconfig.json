@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "ES5",
+            "ES6"
+        ],
+        "target": "ES5",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "outDir": "./build",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "resolveJsonModule": true // json 불러오는 기능
+
+    },
+    "include": [
+        "./src/",
+        "./src/app.ts",
+    ],
+}
+
