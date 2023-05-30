@@ -14,6 +14,9 @@ export class Channel{
     @Column()
     auther: string;
 
+    @Column({nullable:true})
+    description: string|null;
+
     @Column()
     @IsUrl()
     url: string;
@@ -21,6 +24,10 @@ export class Channel{
     @Column()
     @IsUrl()
     rssURL: string;
+
+    @Column({nullable:true})
+    @IsUrl()
+    thumbnail: string|null;
 
     @OneToMany(()=>Article, article=>article.channel)
     articles: Article[];
@@ -31,5 +38,11 @@ export class Channel{
     @OneToMany(()=> Sublist, sublist=>sublist.channel)
     sublists: Sublist[]
     //sublist=>sublist.user
+    
 
+    @Column({nullable:true})
+    lastFetched: Date|null;
+
+    @Column({nullable:true})
+    lastFetchState: String|null;
 }

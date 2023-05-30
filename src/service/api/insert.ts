@@ -36,7 +36,7 @@ export async function addChannel(title :string, auther:string, url:URL, rssURL:U
     ch.title = title
     ch.auther = auther
     ch.url = url.toString()
-    ch.rssURL = url.toString()
+    ch.rssURL = rssURL.toString()
     ch.sublists = [];
 
 

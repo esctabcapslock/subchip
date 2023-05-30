@@ -1,7 +1,9 @@
 import { dataSource, endDbLoading } from "./db";
 import { User } from "./db/entity/user";
+import { server } from "./server";
 
 dataSource;
+server;
 
 // (async ()=>{
 //     await endDbLoading;

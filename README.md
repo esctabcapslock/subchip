@@ -20,4 +20,20 @@
         - 특정 host나 article을 보여주는 기능
     - 특정 파일은 숨겨야 접근할 수 있는 기능
 
+
+- chatGPT 프론트엔드 짜달라고 하기
+```prompt
+여러가지 뉴스 기사를 보여주는 웹사이트를 만들것임.
+깔끔한 프론트엔드 페이지 코드를 짜줘.
+`/api/getarticle`로 get요청을 보내면 답변이 옴. 
+{언론사Id:number, 언론사제목:string, 기사ID:number, 기사제목:string, 시간:DateString, tag:String }[]
+이런 형식임. 
+
+`/api/getarticle/press/{언론사Id}`면 특정 언론사 기사 목록만 오는거고
+`/api/getarticle/tag/{tagname}`면 tagname에 해당되는 기사들만 오는거임.
+
+`/api/list/tag`면 tag목록이 오고, `/api/list/press`면 언론사 목록이 올꺼야.
+
+짜줘.
+```
     

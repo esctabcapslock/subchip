@@ -22,8 +22,9 @@ export class Sublist{
     @Column({nullable: true})
     title: string|null;
 
-    @Column({default:false})
-    hide: Boolean = false;
+    // 이거 걍 놔누기? 계정 하나 만들어?
+    // @Column({default:false})
+    // hide: Boolean = false;
 
     @ManyToOne(()=>Channel, channel=>channel.sublists)
     channel: Channel;
