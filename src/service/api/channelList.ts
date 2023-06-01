@@ -2,9 +2,9 @@ import {dataSource} from '../../db'
 import { Article } from '../../db/entity/article'
 import { Channel } from '../../db/entity/channel'
 import { User } from '../../db/entity/user'
-import { RssImplementList } from '../rss/implement/list'
+import { autoSelectRssParser } from '../rss/implement/list'
 import { YoutubeRSS } from '../rss/implement/youtube'
-import { updateCntPerDay } from './set.json'
+import { updateCntPerDay, MinimumUpdateInterval } from './set.json'
 
 const userRepository = dataSource.getRepository(User)
 const channelRepository = dataSource.getRepository(Channel)
@@ -38,7 +38,7 @@ export async function updateChannelAll() {
     // 같은 도메인: 한번에 한 도메인씩만, 각 요청마다 5초 간격.
     // 다른 도메인: 동시에 보내
     const hostNameQueue:{[key:string]:Channel[]} = {}
-    const hostNaleList:string[] = []
+    let hostNaleList:string[] = []
     const list = await channelRepository.find();
 
     for (const ch of list){
@@ -47,31 +47,34 @@ export async function updateChannelAll() {
         hostNameQueue[u].push(ch)
     }
 
-    console.log(`[list]`,list)
-    console.log(`[hostNaleList]`,hostNaleList)
+    // console.log(`[list]`,list)
+    // console.log(`[hostNaleList]`,hostNaleList)
+    // hostNaleList=hostNaleList.filter(v=>v!='www.youtube.com')
 
     await Promise.all(hostNaleList.map(async host=>{
+        const c = autoSelectRssParser(host);
+        for (const ch of hostNameQueue[host]){
+            const cc = new c(ch.title, new URL(ch.url), new URL(ch.rssURL));
+            
+            if ((Math.abs(Number(new Date(ch.lastFetched))-Date.now())<1000*60*MinimumUpdateInterval) && ch.lastFetchState=='200'){
+                console.log(`${ch.title}은 업데이트가 ${((Math.abs(Number(new Date(ch.lastFetched))-Date.now())/1000/60))|0}분 이내이므로 무시한다.`)
+                continue
+            }
+            try{
+                const articles = await cc.pull()
+                await updateArticle(articles, ch)
+                ch.lastFetchState = '200'
+                ch.lastFetched = new Date()
+                channelRepository.save(ch)
+            }catch(err){
+                console.log(err)
+                return false;
 
-        for (const c of RssImplementList){
-            if (c.test(host)){
-                for (const ch of hostNameQueue[host]){
-                    const cc = new c(ch.title, new URL(ch.url), new URL(ch.rssURL));
-
-                    try{
-                        const articles = await cc.pull()
-                        await updateArticle(articles, ch)
-                        ch.lastFetchState = '200'
-                        ch.lastFetched = new Date()
-                        channelRepository.save(ch)
-                    }catch(err){
-                        ch.lastFetchState = err.toString()
-                        ch.lastFetched = new Date()
-                        channelRepository.save(ch)
-                    }finally{
-                        await delay(3000+Math.random()*2000);
-                    }
-                    
-                }
+                ch.lastFetchState = err.toString()
+                ch.lastFetched = new Date()
+                channelRepository.save(ch)
+            }finally{
+                await delay(3000+Math.random()*2000);
             }
         }
     }))

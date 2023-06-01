@@ -6,3 +6,6 @@ package-lock.json
 *.ini
 *.jsong
 src/**/*.json
+*.png
+*.jpg
+*.jpeg

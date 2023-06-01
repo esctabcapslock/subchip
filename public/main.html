@@ -306,7 +306,7 @@
     pressInfo.classList.add('press-info')
     const pressThumbnail = document.createElement('img');
     pressThumbnail.classList.add('press-thumbnail');
-    pressThumbnail.src = article.channel.thumbnail;
+    pressThumbnail.src = article.channel.thumbnail ? article.channel.thumbnail : '/s/img/1.png';
     pressThumbnail.alt = article.channel.title;
     pressInfo.appendChild(pressThumbnail);
 
@@ -420,3 +420,16 @@ const newsApp = new NewsApp();
   </script>
 </body>
 </html>
+
+
+<!-- <a href="https://www.example.com" onclick="openLink(event)">링크 텍스트</a>
+
+<script>
+  function openLink(event) {
+    event.preventDefault(); // 기본 동작(링크 이동)을 막음
+
+    // Referer를 제거하고 링크를 새 창으로 열기
+    window.open(event.target.href, '_blank', 'noopener,noreferrer');
+  }
+</script>
+ -->

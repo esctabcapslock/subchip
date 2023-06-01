@@ -47,7 +47,7 @@ $article.get(async (q,s,_)=>{
 })
 
 // http://localhost:8002/api/article/channel/1
-$article.p('channel').p(/\d+/gi).get(async (q,s,_)=>{
+$article.p('channel').p(/^\d+$/gi).get(async (q,s,_)=>{
     console.log('channel Id maybe??',q.lastSubPath)
     const channelId = parseInt(q.lastSubPath)
     console.log('channel Id:', channelId)
