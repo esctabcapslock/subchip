@@ -71,7 +71,8 @@ export class CommonBlogRss extends CrawlingRSS{
                 // 있으면 어캄? 나중에 처리하자
                 const article = new Article()
                 
-                const body =  removeHTMLTag(articleData.description[0])
+                const pre_body = articleData.description[0]
+                const body =  removeHTMLTag(pre_body)
 
                 article.title = articleData.title[0]
                 article.link = articleData.link[0]
@@ -79,7 +80,7 @@ export class CommonBlogRss extends CrawlingRSS{
                 article.updated = null
                 article.thumbnail = null
                 article.summary = body.length<250?body:summary(body, 250)
-                article.content = body.length>250?body:null
+                article.content = pre_body.length>250?pre_body:null
                 return article
             })
         }else if (rssdata.feed){

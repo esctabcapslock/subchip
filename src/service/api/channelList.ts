@@ -42,7 +42,9 @@ export async function updateChannelAll() {
     const list = await channelRepository.find();
 
     for (const ch of list){
-        const u  = (new URL(ch.rssURL)).hostname
+        let u  = (new URL(ch.rssURL)).hostname
+        let udot = u.split('.')
+        if (udot.length>2) u = `${udot[udot.length-2]}.${udot[udot.length-1]}`
         if (!hostNameQueue[u]) {hostNameQueue[u] = []; hostNaleList.push(u)}
         hostNameQueue[u].push(ch)
     }
@@ -56,6 +58,7 @@ export async function updateChannelAll() {
         for (const ch of hostNameQueue[host]){
             const cc = new c(ch.title, new URL(ch.url), new URL(ch.rssURL));
             
+            // if (!ch.url.includes('kk')) {console.log(ch.url,'은 부적절하다.');return};
             if ((Math.abs(Number(new Date(ch.lastFetched))-Date.now())<1000*60*MinimumUpdateInterval) && ch.lastFetchState=='200'){
                 console.log(`Channel "\x1b[3m\x1b[32m${ch.title}\x1b[0m" was already updated \x1b[33m${((Math.abs(Number(new Date(ch.lastFetched))-Date.now())/1000/60))|0}\x1b[0m minutes ago.`)
                 continue
@@ -68,8 +71,6 @@ export async function updateChannelAll() {
                 channelRepository.save(ch)
             }catch(err){
                 console.log(err)
-                return false;
-
                 ch.lastFetchState = err.toString()
                 ch.lastFetched = new Date()
                 channelRepository.save(ch)
