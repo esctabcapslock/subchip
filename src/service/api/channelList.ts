@@ -57,7 +57,7 @@ export async function updateChannelAll() {
             const cc = new c(ch.title, new URL(ch.url), new URL(ch.rssURL));
             
             if ((Math.abs(Number(new Date(ch.lastFetched))-Date.now())<1000*60*MinimumUpdateInterval) && ch.lastFetchState=='200'){
-                console.log(`${ch.title}은 업데이트가 ${((Math.abs(Number(new Date(ch.lastFetched))-Date.now())/1000/60))|0}분 이내이므로 무시한다.`)
+                console.log(`Channel "\x1b[3m\x1b[32m${ch.title}\x1b[0m" was already updated \x1b[33m${((Math.abs(Number(new Date(ch.lastFetched))-Date.now())/1000/60))|0}\x1b[0m minutes ago.`)
                 continue
             }
             try{
@@ -87,12 +87,12 @@ let a:NodeJS.Timer|null = null;
 /**
  * 주기적으로 체널을 업데이트 하는 함수다.
  */
-async function updateCannelRegurally() {
+export async function updateCannelRegurally() {
     const SecOfDay = 1000*3600*24
 
     setTimeout(()=>{
         a = setInterval(()=>{
             updateChannelAll();
         }, SecOfDay/updateCntPerDay|0)
-    }, (SecOfDay - Number(new Date())%SecOfDay)%(SecOfDay/updateCntPerDay|0))
+    }, (SecOfDay - (Number(new Date())%SecOfDay))%(SecOfDay/updateCntPerDay|0))
 }

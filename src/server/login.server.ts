@@ -1,6 +1,7 @@
 import {Server} from "httptree";
 import { sessionList } from "../service/session/sessionList";
 import { thisProgramPath } from "../const";
+import { admin_pw } from "./pw_ex.json"
 
 
 export const loginServer = new Server<string>(
@@ -24,7 +25,7 @@ $auth.p('login').post(async (req,res, sessionKey)=>{
 
     // 로그인 체크 및 유저 할당.
     function checkLogin(id:any, pw:any){
-        if(id == 'login' && pw == 'll' /*'ebc3afe02b928c8cafd3df46dd751df9aaedbd7554f5684ab63fe369deae74ce'*/) {
+        if(id == 'login' && pw == admin_pw /* ex: 'e7bc3ce02b93fc8da3d3d946dd751429aafecbd75f1224ab639e3669deae74c'*/) {
             // 유저 정보 할당.
             sessionList.setUser(sessionKey, 1)
             return true

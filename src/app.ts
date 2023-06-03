@@ -1,9 +1,11 @@
 import { dataSource, endDbLoading } from "./db";
 import { User } from "./db/entity/user";
 import { server } from "./server";
+import { updateCannelRegurally } from "./service/api/channelList";
 
 dataSource;
 server;
+updateCannelRegurally();
 
 // (async ()=>{
 //     await endDbLoading;

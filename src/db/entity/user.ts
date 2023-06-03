@@ -13,9 +13,9 @@ export class User{
     pw: string;
 
     @Column()
-    @IsEmail()
-    email: string; // TODO 유효성 검증
-
+    @IsEmail() // 유효성 검증
+    email: string; 
+    
     @OneToMany(()=>Sublist, sublist=>sublist.user)
     sublist: Sublist[];
 

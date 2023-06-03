@@ -35,10 +35,14 @@
     }
 
     .form-group input {
-      width: 100%;
+      /* width: 100%; */
+      width: calc(100% - 12px);
       padding: 5px;
       border: 1px solid #ccc;
       border-radius: 3px;
+      background-color: white;
+      /* for ios background-color */
+      -webkit-appearance: none;
     }
 
     .btn {
@@ -68,6 +72,7 @@
     .site-info {
       font-size: 12px;
       text-align: center;
+      margin-top: 10px;
       margin-bottom: 10px;
     }
 
@@ -97,6 +102,7 @@
         <span class="error" id="passwordError"></span>
       </div>
       <button type="submit" class="btn">로그인</button>
+      <span class="error" id="loginError"></span>
     </form>
     <div class="site-info">
       사이트 정보 | 서비스 약관
@@ -112,12 +118,14 @@
   const $login = document.getElementById('login-form')
   const salt = 'passaSWord'
 
-  $login.password.addEventListener('change', async e => {
-
+  $login.addEventListener('change', async e => {
+    loginError.textContent = ''
     $login.password_hidden.value = await sha256(salt + $login.password.value)
   })
 
-  $login.password.addEventListener('keydown ', async e => {
+  $login.addEventListener('keydown ', async e => {
+    console.log('keydown')
+    loginError.textContent = ''
     $login.password_hidden.value = await sha256(salt + $login.password.value)
   })
 
@@ -131,7 +139,7 @@
 
     const usernameError = document.getElementById('usernameError');
     const passwordError = document.getElementById('passwordError');
-    const isValid = true;
+    let isValid = true;
 
     if (id === '') {
       usernameError.textContent = '사용자 이름을 입력하세요.';
@@ -170,6 +178,8 @@
     console.log(data)
     if (data.login == true) {
       location = '/'
+    }else{
+      loginError.textContent = '로그인에 실패하였습니다. 사용자 이름과 비밀번호를 확인해주세요.';
     }
 
 
