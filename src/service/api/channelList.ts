@@ -75,12 +75,29 @@ export async function updateChannelAll() {
                 ch.lastFetched = new Date()
                 channelRepository.save(ch)
             }finally{
-                await delay(3000+Math.random()*2000);
+                await delay(2000+Math.random()*1000);
             }
         }
     }))
 }
 
+
+/**
+ * 아래와 같이 주어진 초를 시간:분:초 형식으로 반환하는 Node.js 함수를 작성할 수 있습니다.
+ * @param seconds 
+ * @returns 
+ */
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    const formattedHours = String(hours).padStart(2, '0');
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = remainingSeconds.toFixed(1).padStart(4, '0');
+    const formattedTime = `${formattedHours}h ${formattedMinutes}m ${formattedSeconds}s`;
+    const yellowFormattedTime = `\x1b[33m${formattedTime}\x1b[0m`;
+    return yellowFormattedTime;
+  }
 
 // type testg ={언론사Id:number, 언론사제목:string, 기사ID:number, 기사제목:string, 시간:DateString, tag:String }[]
 
@@ -90,10 +107,28 @@ let a:NodeJS.Timer|null = null;
  */
 export async function updateCannelRegurally() {
     const SecOfDay = 1000*3600*24
+    const offset = 2.5*60*1000 //정시보다 약간 늦게 크롤링. 
+    const cal_remain_time = ()=>(SecOfDay - (Number(new Date())%SecOfDay)+offset)%(SecOfDay/updateCntPerDay|0)
 
-    setTimeout(()=>{
-        a = setInterval(()=>{
-            updateChannelAll();
-        }, SecOfDay/updateCntPerDay|0)
-    }, (SecOfDay - (Number(new Date())%SecOfDay))%(SecOfDay/updateCntPerDay|0))
+    while (true){
+        console.log(formatTime(cal_remain_time()/1000), "뒤에 업데이트가 예정되었습니다.")
+        await delay (cal_remain_time());
+        console.log(new Date().toLocaleTimeString('en-US', { hour12: false }),)
+        await updateChannelAll()
+    }
+    // setTimeout(()=>{
+
+       
+    //     // a = setInterval(()=>{
+    //     //     updateChannelAll();
+    //     //     console.log(formatTime((SecOfDay/updateCntPerDay|0)/1000), '시간 뒤에 업데이트가 예정되었습니다.')
+    //     // }, SecOfDay/updateCntPerDay|0)
+    //     // console.log(formatTime((SecOfDay/updateCntPerDay|0)/1000), '시간 뒤에 업데이트가 예정되었습니다.')
+    //     while (true){
+    //         updateChannelAll();
+    //         await delay (cal_remain_time());
+    //     }
+    // }, cal_remain_time())
+
+    // console.log(formatTime(cal_remain_time()/1000), "시간 뒤에 업데이트가 예정되었습니다.")
 }

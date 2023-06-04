@@ -62,7 +62,7 @@ export class CommonBlogRss extends CrawlingRSS{
 
 
     async rssParser(rssXML: string){
-        console.log('rssXML:',rssXML)
+        // console.log('rssXML:',rssXML)
         const rssdata = await parseStringPromise(rssXML)
         if (rssdata.rss && rssdata.rss?.$?.version == '2.0'){
             const entry = rssdata.rss.channel[0].item

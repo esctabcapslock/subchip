@@ -4,7 +4,7 @@ import { articleData, CrawlingRSS } from "../crawlingRSS";
 import { Article } from "../../../db/entity/article";
 
 export class YoutubeRSS extends CrawlingRSS{
-    static allowHost = ['www.youtube.com']
+    static allowHost = ['youtube.com']
 
 
     async rssParser(rssXML: string){

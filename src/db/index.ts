@@ -4,9 +4,10 @@ export const dataSource = new DataSource({
     type: "sqlite",
     database: "./database.sqlite",
     synchronize: true,
-    logging: true,
+    logging: false,
     entities: [
-        __dirname + "/entity/*.ts"
+        __dirname + "/entity/*.ts",
+        __dirname + "/entity/*.js",
     ],
     // migrations: [],
     // subscribers: [],

@@ -1,0 +1,31 @@
+{
+    "name": "subchip",
+    "version": "0.0.0",
+    "description": "구독 확인 밎 알림 프로그램",
+    "scripts": {
+        "dev": "ts-node src/app -dev",
+        "start.dev": "ts-node src/app",
+        "build": "npx tsc",
+        "start": "node ./build/app.js",
+        "test.http.get": "ts-node src/service/http/http.test.ts",
+        "test.rss": "ts-node src/service/rss/rss.test.ts",
+        "test.blog.rss": "ts-node src/service/rss/rssblog.test.ts",
+        "test.ins.ch": "ts-node src/service/api/insert.test.ts",
+        "test.update.ch": "ts-node src/service/api/updateChannelnow.test.ts",
+        "update": "ts-node src/service/api/updateChannelnow.test.ts"
+    },
+    "dependencies": {
+        "class-validator": "^0.14.0",
+        "httptree": "^0.0.3",
+        "reflect-metadata": "^0.1.13",
+        "sharp": "^0.31.3",
+        "sqlite3": "^5.1.4",
+        "typeorm": "^0.3.12",
+        "xml2js": "^0.6.0"
+    },
+    "devDependencies": {
+        "@types/node": "^18.15.0",
+        "@types/xml2js": "^0.4.11",
+        "ts-node": "^10.9.1"
+    }
+}

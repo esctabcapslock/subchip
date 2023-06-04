@@ -10,7 +10,7 @@ import { loginServer } from './login.server';
 
 export const server  =  createServer(async (req,res)=>{
     
-    console.log(`[${req.method}]`,'[url]', req.url,'|')
+    console.log(`[${req.method}]`, new Date().toLocaleTimeString('en-US', { hour12: false }), '[url]', req.url,'|')
 
     let {userId, session} = await (async ()=>{
         try{return await sessionParser(req,res);}

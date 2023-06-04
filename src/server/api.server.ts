@@ -11,10 +11,10 @@ const $api = apiServer.p('api')
 const $article = $api.p('article')
 
 
-apiServer.catch((q,s,_)=>{
-    console.log('catch error:',);
-    s.send('error')
-})
+// apiServer.catch((q,s,_)=>{
+//     console.log('catch error:', );
+//     s.send('error')
+// })
 
 $article.get(async (q,s,_)=>{
     // const list = await articleRepository.find({ order: {
