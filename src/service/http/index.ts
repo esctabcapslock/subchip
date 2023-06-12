@@ -29,10 +29,19 @@ export async function get(url: URL): Promise<string> {
                 rejects(e)
             })
 
-            res.on('end',()=>{
+            res.on('end',async ()=>{
                 // console.log('data:',data)
-                if(!res.statusCode || (res.statusCode/100|0)!=2) return resolve(`잘못된 statusCode : ${res.statusCode}`)
-                resolve(data.toString())
+                if(!res.statusCode) return resolve(`잘못된 statusCode : ${res.statusCode}`)
+                if ((res.statusCode/100|0)==2) resolve(data.toString())
+                if ((res.statusCode/100|0)==3 && res.headers.location) {
+                    try{
+                        return resolve(await get(new URL(res.headers.location)));
+                    }catch(e){
+                        console.log(e)
+                        return rejects(`잘못된 statusCode : ${res.statusCode}, -> 에러남: error:${e}`)
+                    }
+                }
+                else rejects(`잘못된 statusCode : ${res.statusCode}, location 없음`)
             })
         })
 

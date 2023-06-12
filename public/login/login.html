@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="./sha256.js"></script>
+  <title>로그인 페이지</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 300px;
+      margin: 100px auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      /* width: 100%; */
+      width: calc(100% - 12px);
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background-color: white;
+      /* for ios background-color */
+      -webkit-appearance: none;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #6789cb;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .site-info {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .privacy-policy {
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="logo.png" alt="로고">
+    </div>
+    <h2>로그인</h2>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username">사용자 이름:</label>
+        <input type="text" id="username" name="username" required>
+        <span class="error" id="usernameError"></span>
+      </div>
+      <div class="form-group">
+        <label for="password">비밀번호:</label>
+        <input type="password" id="password" name="password" required>
+        <input type="hidden" id="password_hidden" name="password_hidden" required>
+        <span class="error" id="passwordError"></span>
+      </div>
+      <button type="submit" class="btn">로그인</button>
+      <span class="error" id="loginError"></span>
+    </form>
+    <div class="site-info">
+      사이트 정보 | 서비스 약관
+    </div>
+    <div class="privacy-policy">
+      개인정보 취급 방침
+    </div>
+  </div>
+</body>
+
+<script>
+
+  const $login = document.getElementById('login-form')
+  const salt = 'passaSWord'
+
+  $login.addEventListener('change', async e => {
+    loginError.textContent = ''
+    $login.password_hidden.value = await sha256(salt + $login.password.value)
+  })
+
+  $login.addEventListener('keydown ', async e => {
+    console.log('keydown')
+    loginError.textContent = ''
+    $login.password_hidden.value = await sha256(salt + $login.password.value)
+  })
+
+  $login.addEventListener('submit', async e => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    const [id, pw, pw_hidden] = [$login.username.value, $login.password.value, $login.password_hidden.value]
+    console.table({ id, pw, pw_hidden })
+
+
+    const usernameError = document.getElementById('usernameError');
+    const passwordError = document.getElementById('passwordError');
+    let isValid = true;
+
+    if (id === '') {
+      usernameError.textContent = '사용자 이름을 입력하세요.';
+      isValid = false;
+    } else if (id.length < 4) {
+      usernameError.textContent = '사용자 이름을 4자 이상 입력하세요';
+      isValid = false;
+    } else {
+      usernameError.textContent = '';
+    }
+
+    if (pw.trim() === '') {
+      passwordError.textContent = '비밀번호를 입력하세요.';
+      isValid = false;
+    } else if (pw.length < 8) {
+      passwordError.textContent = '비밀번호를 8자 이상 입력하세요.';
+      isValid = false;
+    } else {
+      passwordError.textContent = '';
+    }
+    if (!isValid) {
+      event.preventDefault(); // 폼 제출을 막음
+      return
+    }
+
+
+
+    const res = await fetch('./login', {
+      method: 'POST',
+      body: JSON.stringify({
+        id,
+        pw: pw_hidden,
+      })
+    })
+    const data = await res.json()
+    console.log(data)
+    if (data.login == true) {
+      const url = new URL(location)
+      const referrer = url.searchParams.get('referrer');
+      console.log(referrer);
+      if (referrer) location = referrer
+      else location = '/'
+    }else{
+      loginError.textContent = '로그인에 실패하였습니다. 사용자 이름과 비밀번호를 확인해주세요.';
+    }
+
+  })
+</script>
+
+</html>

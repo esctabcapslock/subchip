@@ -1,7 +1,13 @@
 node_modules/
 *.sqlite
-package.json
+# package.json
 package-lock.json
 .DS_Store
 *.ini
-*.json
+*.jsong
+src/**/*.json
+*.png
+*.jpg
+*.jpeg
+build/
+setup.sh

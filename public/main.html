@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>뉴스 기사</title>
+  <style>
+    /* 스타일링을 위한 CSS */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      background-color: #f2f2f2;
+      padding: 10px;
+      text-align: right;
+    }
+
+    .header button {
+      padding: 5px 10px;
+      font-size: 14px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .filter-container {
+      background-color: #f9f9f9;
+      padding: 10px;
+    }
+
+    .filter-container select {
+      font-size: 14px;
+      padding: 5px 10px;
+      margin-right: 10px;
+    }
+
+    .articles-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .article-card {
+      width: 300px;
+      margin: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+
+
+    .thumbnail {
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+      opacity: 0.01;
+    }
+
+    .article-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+      text-decoration: none;
+    }
+    .summary {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .tag-container {
+      margin-top: 10px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      color: #666;
+      background-color: #f2f2f2;
+      padding: 3px 6px;
+      border-radius: 3px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    .tag.selected {
+      background-color: #333;
+      color: #fff;
+    }
+
+    .toggle-summary-button {
+      font-size: 14px;
+      color: #333;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .full-summary {
+  display: none;
+}
+
+.press-info{
+  display: flex;
+  /* align-items: flex-start; */
+  align-items: center;
+}
+.press-title {
+  font-weight: bold;
+  color: #555;
+  margin-right: 8px;
+}
+
+.press-thumbnail {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.published,
+.updated {
+  color: #777;
+}
+
+.published-detailed,
+.updated-detailed {
+  color: #555;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.detailed-date{
+  display: block;
+}
+
+.hidden{
+  display: none;
+}
+
+
+
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button>Login</button>
+  </div>
+
+  <div class="filter-container">
+    <select id="press-select">
+      <option value="">All Channel</option>
+    </select>
+    <select id="tag-select">
+      <option value="">All Tags</option>
+    </select>
+  </div>
+
+  <div class="articles-container" id="articles-container"></div>
+
+  <script>
+
+    // 날짜 포맷 변환 함수
+  function formatDate(dateString, detailed = false) {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  if (detailed) {
+    return date.toLocaleString();
+  }
+
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 60) {
+    return `${minutes}분 전`;
+  } else if (hours < 24) {
+    return `${hours}시간 전`;
+  } else if (days < 7) {
+    return `${days}일 전`;
+  } else {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}-${month}-${day}`;
+  }
+}
+
+  </script>
+  <script>
+    class NewsApp {
+      constructor() {
+        this.articlesContainer = document.getElementById('articles-container');
+        this.pressSelect = document.getElementById('press-select');
+        this.tagSelect = document.getElementById('tag-select');
+        this.page = 0
+        this.pageEnd = false
+        this.getPressList();
+        this.getArticles();
+        
+        this.pressSelect.addEventListener('change', this.filterByPress.bind(this));
+        this.tagSelect.addEventListener('change', this.filterByTag.bind(this));
+        this.addScrollListener()
+      }
+
+      getArticles() {
+        if (this.pageEnd==true) return
+        fetch(`/api/article?page=${this.page}`)
+          .then(response => response.json())
+          .then(data => {{if(data.length==0) this.pageEnd=true} this.displayArticles(data)})
+          .catch(error => console.error('Error:', error));
+      }
+
+addScrollListener() {
+  const ScrollListener = () => {
+    if(this.page == -1) return
+    let { scrollHeight, clientHeight } = document.documentElement;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    // if (scrollTop==undefined) scrollTop = window.pageYOffset;
+    console.table({ scrollTop, scrollHeight, clientHeight })
+    // alert(`${scrollTop}, ${scrollHeight}, ${clientHeight}`)
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      this.page++;
+      this.getArticles();
+    }
+  };
+  window.addEventListener('scroll', ScrollListener)
+  document.body.addEventListener('scroll', ScrollListener)
+  document.documentElement.addEventListener('scroll', ScrollListener)
+}
+
+      getPressList() {
+        fetch('/api/channel')
+          .then(response => response.json())
+          .then(data => {
+            const tagList = [];
+            for (const pe of data) if(data.tag) tagList.push(data.tag)
+            this.displayPressList(data);
+            console.log('tagList:',tagList)
+            this.displayTags(tagList)
+})
+.catch(error => console.error('Error:', error));
+}
+
+  filterByPress() {
+    const pressId = this.pressSelect.value;
+    if (pressId) {
+      fetch(`/api/article/channel/${pressId}`)
+        .then(response => response.json())
+        .then(data => {this.page=-1; this.pageEnd=false; this.displayArticles(data)})
+        .catch(error => console.error('Error:', error));
+    } else {
+      this.page=0; this.pageEnd=false; this.getArticles();
+    }
+  }
+
+  filterByTag() {
+    const tagName = this.tagSelect.value;
+    if (tagName) {
+      fetch(`/api/article/tag/${tagName}`)
+        .then(response => response.json())
+        .then(data => {this.page=-1; this.pageEnd=false; this.displayArticles(data)})
+        .catch(error => console.error('Error:', error));
+    } else {
+      this.page=0; this.pageEnd=false; this.getArticles();
+    }
+  }
+
+  /*displayArticles(articles) {
+    this.articlesContainer.innerHTML = '';
+
+    articles.forEach(article => {
+      const articleCard = document.createElement('div');
+      articleCard.classList.add('article-card');
+
+      const titleElement = document.createElement('div');
+      titleElement.classList.add('title');
+      titleElement.textContent = article.기사제목;
+
+      const infoElement = document.createElement('div');
+      infoElement.classList.add('info');
+      infoElement.textContent = `${article.언론사제목} | ${article.시간}`;
+
+      const tagContainer = document.createElement('div');
+      tagContainer.classList.add('tag-container');
+
+      article?.tag?.forEach(tag => {
+        const tagElement = document.createElement('div');
+        tagElement.classList.add('tag');
+        tagElement.textContent = tag;
+        tagElement.onclick = () => this.filterByTag(tag);
+        tagContainer.appendChild(tagElement);
+      });
+
+      articleCard.appendChild(titleElement);
+      articleCard.appendChild(infoElement);
+      articleCard.appendChild(tagContainer);
+
+      this.articlesContainer.appendChild(articleCard);
+    });
+  }*/
+
+  // displayArticles 함수 수정
+  displayArticles(articles) {
+  const container = document.getElementById('articles-container');
+  if(this.page==0 || this.page==-1) container.innerHTML = '';
+
+  articles.forEach((article) => {
+    const articleCard = document.createElement('div');
+    articleCard.classList.add('article-card');
+
+    const titleLink = document.createElement('a');
+    titleLink.classList.add('article-title');
+    titleLink.href = article.link;
+    titleLink.target = '_blank';
+    titleLink.textContent = article.title;
+    articleCard.appendChild(titleLink);
+
+    const pressInfo = document.createElement('div');
+    pressInfo.classList.add('press-info')
+    const pressThumbnail = document.createElement('img');
+    pressThumbnail.classList.add('press-thumbnail');
+    pressThumbnail.src = article.channel.thumbnail ? article.channel.thumbnail : '/s/img/1.png';
+    pressThumbnail.alt = article.channel.title;
+    pressInfo.appendChild(pressThumbnail);
+
+    const pressTitle = document.createElement('span');
+    pressTitle.classList.add('press-title');
+    pressTitle.textContent = article.channel.title;
+    pressInfo.appendChild(pressTitle);
+    articleCard.appendChild(pressInfo);
+
+    const dateElement = document.createElement('span');
+    dateElement.classList.add('published-detailed');
+    dateElement.textContent = formatDate(article.published);
+    articleCard.appendChild(dateElement);
+
+    const detailedDateElement = document.createElement('span');
+    detailedDateElement.classList.add('published-detailed', 'hidden', 'detailed-date');
+    // detailedDateElement.textContent = `생성: ${formatDate(article.published, true)} \n\\\n수정:  ${formatDate(article.updated, true)}`
+    detailedDateElement.appendChild(document.createTextNode(`생성: ${formatDate(article.published, true)}`))
+    detailedDateElement.appendChild(document.createElement('br'))
+    detailedDateElement.appendChild(document.createTextNode(`수정:  ${formatDate(article.updated, true)}`))
+    articleCard.appendChild(detailedDateElement);
+
+    container.appendChild(articleCard);
+
+    const summaryElement = document.createElement('p');
+    summaryElement.classList.add('summary');
+    summaryElement.classList.add('collapsed');
+    const summaryText = article.summary.length > 60 ? article.summary.slice(0, 60) + '...' : article.summary;
+    summaryElement.textContent = summaryText;
+    articleCard.appendChild(summaryElement);
+
+    const fullSummaryElement = document.createElement('p');
+    fullSummaryElement.classList.add('full-summary', 'hidden');
+    fullSummaryElement.textContent = article.summary;
+    articleCard.appendChild(fullSummaryElement);
+
+    const buttonElement = document.createElement('button');
+    buttonElement.classList.add('toggle-summary-button');
+    buttonElement.textContent = '더보기';
+    buttonElement.setAttribute('aria-expanded', 'false');
+    buttonElement.addEventListener('click', () => {
+      this.toggleSummary(summaryElement, fullSummaryElement, buttonElement);
+    });
+    articleCard.appendChild(buttonElement);
+
+    
+  });
+}
+
+toggleSummary(summaryElement, fullSummaryElement, buttonElement) {
+  const publishedElement = summaryElement.parentElement.querySelector('.published-detailed');
+  const detailedDateElement = summaryElement.parentElement.querySelector('.detailed-date');
+
+  if (summaryElement.classList.contains('collapsed')) {
+    summaryElement.classList.remove('collapsed');
+    summaryElement.textContent = fullSummaryElement.textContent;
+
+    buttonElement.textContent = '숨기기';
+    buttonElement.setAttribute('aria-expanded', 'true');
+
+    if (publishedElement) {
+      publishedElement.classList.add('hidden');
+    }
+    if (detailedDateElement) {
+      detailedDateElement.classList.remove('hidden');
+    }
+  } else {
+    summaryElement.classList.add('collapsed');
+    const summaryText = fullSummaryElement.textContent.slice(0, 50) + '...';
+    summaryElement.textContent = summaryText;
+
+    buttonElement.textContent = '더보기';
+    buttonElement.setAttribute('aria-expanded', 'false');
+
+    if (publishedElement) {
+      publishedElement.classList.remove('hidden');
+    }
+    if (detailedDateElement) {
+      detailedDateElement.classList.add('hidden');
+    }
+  }
+}
+
+
+
+  displayTags(tags) {
+    tags.forEach(tag => {
+      const option = document.createElement('option');
+      option.value = tag;
+      option.textContent = tag;
+      this.tagSelect.appendChild(option);
+    });
+  }
+
+  displayPressList(pressList) {
+    pressList.forEach(press => {
+      const option = document.createElement('option');
+      option.value = press.id;
+      option.textContent = press.title;
+      this.pressSelect.appendChild(option);
+    });
+  }
+
+
+  
+}
+
+// NewsApp 인스턴스 생성
+const newsApp = new NewsApp();
+
+  </script>
+</body>
+</html>
+
+
+<!-- <a href="https://www.example.com" onclick="openLink(event)">링크 텍스트</a>
+
+<script>
+  function openLink(event) {
+    event.preventDefault(); // 기본 동작(링크 이동)을 막음
+
+    // Referer를 제거하고 링크를 새 창으로 열기
+    window.open(event.target.href, '_blank', 'noopener,noreferrer');
+  }
+</script>
+ -->
