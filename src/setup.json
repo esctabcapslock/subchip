@@ -1,0 +1,9 @@
+{
+   "server":{
+     "pageSize": 60
+   },
+   "api":{
+        "updateCntPerDay": 24,
+        "MinimumUpdateInterval": 20
+   }
+}
